@@ -1,0 +1,30 @@
+.fi-sidebar-group-label{
+    font-size: 24px !important;
+    color: #F7925E !important;
+    font-weight: 700 !important;
+}
+.fi-sidebar-group ul{
+    margin-left: 10px;
+}
+.fi-sidebar-nav{
+    background-color: #36190B;
+    
+}
+.fi-sidebar-item-label, .fi-sidebar-item-icon{
+    color: #fff !important;
+}
+
+li.fi-sidebar-item:hover .fi-sidebar-item-label, li.fi-sidebar-item:hover .fi-sidebar-item-icon, .fi-sidebar-item-active .fi-sidebar-item-label, .fi-sidebar-item-active .fi-sidebar-item-icon {
+    color: #F7925E !important;
+}
+.fi-simple-main-ctn{
+    width: 100% !important;
+    max-width: 500px !important;
+}
+
+@media (max-width: 600px){
+    .fi-simple-main-ctn{
+        padding-left: 2em;
+        padding-right: 2em;
+    }
+}
