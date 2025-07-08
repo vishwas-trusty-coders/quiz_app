@@ -133,24 +133,25 @@
 
 
     <script>
+        // Select the checkbox by its ID (replace 'myCheckbox' with your checkbox's ID)
+        $(document).on('change', '.topic', function() {
+            // $("#captureAudio").prop('checked', false);
+            $('input[name="question_status[]"]').prop('checked', false);
+            $('.total_que_count').text('');
+        });
 
+        function getDataAjaxCall() {
 
-// Select the checkbox by its ID (replace 'myCheckbox' with your checkbox's ID)
-                $(document).on('change', '.topic', function() {
-                    console.log('h');
-                    // $("#captureAudio").prop('checked', false);
-                    $('input[name="question_status[]"]').prop('checked',false);
-                    $('.total_que_count').text('');
-                });
+            $('input[name="question_status[]"]').prop('checked', false);
+            $('.total_que_count').text('');
 
-        function getDataAjaxCall(){
-             $('.question-counter').text(0);
+            $('.question-counter').text(0);
             $('.topic').attr('disabled', true);
-            
+
             $('.topic-label').addClass('topic-label-disabled');
             $('.topic-label-disabled').removeClass('topic-label');
-           
-            $('.topic').prop('checked', false);
+
+            // $('.topic').prop('checked', false);
             formData = $('#quiz-form').serialize();
             var url = '{{ route("get.topics.questions.count") }}';
             // var formData={'subject':$(this).val()}
@@ -162,24 +163,34 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Include CSRF token for Laravel
                 },
                 success: function(response) {
-                    console.log(response);
                     result = JSON.parse(response.data);
                     $.each(result, function(index, element) {
-                        if(parseInt(element.questions_count)!=0){
-                            console.log("11");
+                       
+                        if (parseInt(element.questions_count) != 0) {
+                            if($('.topic-' + element.id).is(':checked')) {
+                                $('.topic-' + element.id).addClass('previously-checked');
+                            }
+
                             $('.topic-label-' + element.id).removeClass('topic-label-disabled');
                             $('.topic-label-' + element.id).addClass('topic-label');
                             $('.topic-' + element.id).removeClass('topic-disabled');
                             $('.topic-' + element.id).addClass('topic');
                             $('.topic-' + element.id).attr('disabled', false);
+                            $('.topic-question-count-' + element.id).text(parseInt($('.topic-question-count-' + element.id).text()) + parseInt(element.questions_count));
+                        }else{
+                            
                         }
                         //console.log("Index: " + index + ", ID: " + element.id + ", Name: " + element.name);
-                        $('.topic-question-count-' + element.id).text(parseInt($('.topic-question-count-' + element.id).text()) + parseInt(element.questions_count));
 
                     });
-                  
+
+                    $('.topic').prop('checked', false);
+                    $('.previously-checked').prop('checked', true);
+                    $('.topic').removeClass('previously-checked');
+
                 },
                 error: function(xhr) {
+                    $('.total_que_count').text('');
                     console.error(xhr.responseText);
                     // Handle error
                 }
@@ -187,10 +198,12 @@
         }
         // Select All Subjects
         document.getElementById('select-all-subjects').addEventListener('change', function() {
+            $('input[name="question_status[]"]').prop('checked', false);
+            $('.total_que_count').text('');
             let checkboxes = document.querySelectorAll('input[name="subject[]"]');
             checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;              
-                
+                checkbox.checked = this.checked;
+
             });
             //jQuery('.topic-col').show();
             getDataAjaxCall();
@@ -198,7 +211,11 @@
 
         // Select All Topics
         document.getElementById('select-all-topics').addEventListener('change', function() {
-            let checkboxes = document.querySelectorAll('input[name="topic[]"]');
+
+            $('input[name="question_status[]"]').prop('checked', false);
+            $('.total_que_count').text('');
+
+            let checkboxes = document.querySelectorAll('input[name="topic[]"]:enabled');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
@@ -207,8 +224,8 @@
         // Handle Subject Selection Change
         document.querySelectorAll('.subject-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                
-              
+
+
                 if (!this.checked) {
                     document.getElementById('select-all-subjects').checked = false;
                 }
@@ -232,6 +249,7 @@
         }
 
         document.getElementById('topic-container').addEventListener('change', function(event) {
+
             if (event.target && event.target.classList.contains('topic-checkbox')) {
                 // If any topic is unchecked, uncheck "Select All Topics"
                 if (!event.target.checked) {
@@ -248,6 +266,7 @@
             let allTopics = document.querySelectorAll('input[name="topic[]"]');
             let selectAllCheckbox = document.getElementById('select-all-topics');
 
+
             // Check if all topics are selected
             let allChecked = Array.from(allTopics).every(checkbox => checkbox.checked);
 
@@ -262,7 +281,7 @@
 
         $(document).ready(function() {
 
-                
+
 
 
             $('#tutor-mode').on('change', function() {
