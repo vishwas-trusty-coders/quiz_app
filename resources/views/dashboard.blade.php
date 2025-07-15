@@ -128,7 +128,9 @@
                     </svg>
                     <div class="percentage">{{ $quizzData['score'] }}%</div>
                 </div>
-                <h3>{{ $quizzData['name'] }}</h3>
+                <div class="title-heading">
+                    <h3>{!! Illuminate\Support\Str::limit($quizzData['name'], 20, ' ...') !!}</h3>
+                </div>
                 {{-- <p class="quiz-card-description">
                 @foreach($quizzData['subjects'] as $index => $subject)
                     {{ $subject['name'] }} ({{ $subject['question_count'] }}),

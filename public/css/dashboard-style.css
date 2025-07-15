@@ -2326,3 +2326,7 @@ background-color: yellow;
 .gray-text {
     color: #bec3cb !important;
 }
+
+.title-heading{
+    height: 80px;
+}

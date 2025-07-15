@@ -61,8 +61,8 @@
                                 @endphp
 
                                 @foreach($sortedSubjects as $subjectId => $subjectData)
-                                <label>
-                                    <input type="checkbox" name="subject[]" value="{{ $subjectId }}" class="subject-checkbox">
+                                <label class=" @if($subjectData['count']==0) topic-disabled @endif">
+                                    <input type="checkbox" name="subject[]" value="{{ $subjectId }}" class="subject-checkbox" @if($subjectData['count']==0) disabled @endif>
                                     {{ $subjectData['name'] }} ({{ $subjectData['count'] }})
                                 </label>
                                 @endforeach
@@ -200,7 +200,7 @@
         document.getElementById('select-all-subjects').addEventListener('change', function() {
             $('input[name="question_status[]"]').prop('checked', false);
             $('.total_que_count').text('');
-            let checkboxes = document.querySelectorAll('input[name="subject[]"]');
+            let checkboxes = document.querySelectorAll('input[name="subject[]"]:enabled');
             checkboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
 
