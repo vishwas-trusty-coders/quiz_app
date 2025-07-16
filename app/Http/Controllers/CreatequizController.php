@@ -155,14 +155,14 @@ class CreatequizController extends Controller
         // Filter by subjects and topics
         $questionsQuery->whereIn('subject_id', $validated['subject'])
             ->whereIn('topic_id', $validated['topic']);
-        // $tags = json_decode($request->tags);
-        // if (!empty($tags)) {
-        //     $questionsQuery->where(function ($q) use ($tags) {
-        //         foreach ($tags as $tag) {
-        //             $q->orWhereJsonContains('tag_ids', $tag);
-        //         }
-        //     });
-        // }
+        $tags = json_decode($request->tags);
+        if (!empty($tags)) {
+            $questionsQuery->where(function ($q) use ($tags) {
+                foreach ($tags as $tag) {
+                    $q->orWhereJsonContains('tag_ids', $tag);
+                }
+            });
+        }
 
         // Check if "all" is included in question_status
         if (in_array('all', $validated['question_status'])) {
