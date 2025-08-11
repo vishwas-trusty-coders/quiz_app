@@ -537,25 +537,107 @@ $flagstatus = [];
 
         // Function to apply strikethrough
         function applyStrikethrough() {
-            let selection = window.getSelection();
-            if (selection.rangeCount) {
-                let range = selection.getRangeAt(0);
-                let parentElement = range.commonAncestorContainer.parentElement;
 
-                // Check if the selected text is inside a question option
-                if (parentElement.closest('.question-list')) {
-                    let span = document.createElement('span');
-                    span.style.textDecoration = 'line-through';
-                    range.surroundContents(span);
-                } else {
-                    // alert("Strikethrough can only be applied to question options.");
+        const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) return;
+
+            const range = selection.getRangeAt(0);
+
+            //Find the closest `.question-list` that contains the selection
+            const questionList = range.commonAncestorContainer.nodeType === 3
+                ? range.commonAncestorContainer.parentElement.closest('.question-list')
+                : range.commonAncestorContainer.closest('.question-list');
+
+            if (!questionList) return; // Selection is not inside a question-list
+
+            // Check if selection is already inside a strikethrough span
+            const container = range.commonAncestorContainer.nodeType === 3
+                ? range.commonAncestorContainer.parentElement
+                : range.commonAncestorContainer;
+
+            const existingStrike = container.closest('span[style*="text-decoration: line-through"]');
+
+            if (existingStrike && selection.containsNode(existingStrike, true)) {
+                // Remove existing strikethrough span
+                const parent = existingStrike.parentNode;
+                while (existingStrike.firstChild) {
+                    parent.insertBefore(existingStrike.firstChild, existingStrike);
                 }
+                parent.removeChild(existingStrike);
+                return;
             }
+
+            // Apply clean strikethrough span
+
+            // Clone and clean selection
+            const fragment = range.cloneContents();
+            const tempDiv = document.createElement('div');
+            tempDiv.appendChild(fragment);
+
+            tempDiv.querySelectorAll('span[style*="text-decoration: line-through"]').forEach(span => {
+                const parent = span.parentNode;
+                while (span.firstChild) {
+                    parent.insertBefore(span.firstChild, span);
+                }
+                parent.removeChild(span);
+            });
+
+            // Wrap cleaned content
+            const newSpan = document.createElement('span');
+            newSpan.style.textDecoration = 'line-through';
+            newSpan.innerHTML = tempDiv.innerHTML;
+
+            // Replace selection with wrapped content
+            range.deleteContents();
+            range.insertNode(newSpan);
+
+            // Optional: Reselect new content
+            selection.removeAllRanges();
+            const newRange = document.createRange();
+            newRange.selectNodeContents(newSpan);
+            selection.addRange(newRange);
+
+           
+            // let selection = window.getSelection();
+            // if (selection.rangeCount) {
+            //     let range = selection.getRangeAt(0);
+            //     let parentElement = range.commonAncestorContainer.parentElement;
+                
+            //     // Check if the selected text is inside a question option
+            //     if (parentElement.closest('.question-list')) {
+            //         let span = document.createElement('span');
+            //         span.style.textDecoration = 'line-through';
+            //         range.surroundContents(span);
+            //     } else {
+            //         // alert("Strikethrough can only be applied to question options.");
+            //     }
+            // }
         }
 
         // Function to apply highlight
         function applyHighlight(element) {
             let selection = window.getSelection();
+            
+            // let span = document.createElement('span');
+            //     span.classList.remove('highlighted');
+            //     //range.surroundContents(span);
+            // document.querySelectorAll('span').forEach(function(span) {
+            //     span.classList.remove('your-class-name');
+            // });
+            // document.querySelectorAll('.editableText').forEach(function(span) {
+            //     span.classList.remove('highlighted');
+            // });
+            // document.querySelectorAll('.editableText').forEach(function(span) {
+            //     span.remove();
+            // });
+            document.querySelectorAll('.editableText span').forEach(function(span) {
+  const parent = span.parentNode;
+  while (span.firstChild) {
+    parent.insertBefore(span.firstChild, span);
+  }
+  parent.removeChild(span);
+});
+
             if (selection.rangeCount) {
                 let range = selection.getRangeAt(0);
                 let span = document.createElement('span');
