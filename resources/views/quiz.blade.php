@@ -615,36 +615,81 @@ $flagstatus = [];
         }
 
         // Function to apply highlight
-        function applyHighlight(element) {
-            let selection = window.getSelection();
-            
-            // let span = document.createElement('span');
-            //     span.classList.remove('highlighted');
-            //     //range.surroundContents(span);
-            // document.querySelectorAll('span').forEach(function(span) {
-            //     span.classList.remove('your-class-name');
-            // });
-            // document.querySelectorAll('.editableText').forEach(function(span) {
-            //     span.classList.remove('highlighted');
-            // });
-            // document.querySelectorAll('.editableText').forEach(function(span) {
-            //     span.remove();
-            // });
-            document.querySelectorAll('.editableText span').forEach(function(span) {
-  const parent = span.parentNode;
-  while (span.firstChild) {
-    parent.insertBefore(span.firstChild, span);
-  }
-  parent.removeChild(span);
-});
+function applyHighlight(element) {
+    const selection = window.getSelection();
 
-            if (selection.rangeCount) {
-                let range = selection.getRangeAt(0);
-                let span = document.createElement('span');
-                span.classList.add('highlighted');
-                range.surroundContents(span);
-            }
+    if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        return;
+    }
+
+    const range = selection.getRangeAt(0);
+
+    // Detect if any part of the selection is already highlighted
+    const highlightedSpansInRange = getHighlightedSpansInRange(range);
+
+    if (highlightedSpansInRange.length > 0) {
+        // 🔄 Unhighlight: unwrap any highlighted spans in the range
+        highlightedSpansInRange.forEach(span => {
+            unwrapSpan(span);
+        });
+    } else {
+        // ✅ Highlight: apply highlight
+        const span = document.createElement('span');
+        span.classList.add('highlighted');
+
+        try {
+            range.surroundContents(span);
+        } catch (e) {
+            // Fallback for complex selection
+            const contents = range.extractContents();
+            span.appendChild(contents);
+            range.insertNode(span);
         }
+    }
+}
+// Find all real .highlighted spans intersecting the range
+function getHighlightedSpansInRange(range) {
+    const spans = [];
+    const treeWalker = document.createTreeWalker(
+        range.commonAncestorContainer,
+        NodeFilter.SHOW_ELEMENT,
+        {
+            acceptNode: function (node) {
+                if (
+                    node.nodeType === 1 &&
+                    node.tagName === "SPAN" &&
+                    node.classList.contains("highlighted")
+                ) {
+                    const spanRange = document.createRange();
+                    spanRange.selectNodeContents(node);
+
+                    // Check if span overlaps with the selection range
+                    return range.compareBoundaryPoints(Range.END_TO_START, spanRange) < 0 &&
+                        range.compareBoundaryPoints(Range.START_TO_END, spanRange) > 0
+                        ? NodeFilter.FILTER_ACCEPT
+                        : NodeFilter.FILTER_REJECT;
+                }
+                return NodeFilter.FILTER_SKIP;
+            },
+        }
+    );
+
+    let currentNode;
+    while ((currentNode = treeWalker.nextNode())) {
+        spans.push(currentNode);
+    }
+
+    return spans;
+}
+
+// Unwraps a <span> by moving its contents to its parent and removing the span
+function unwrapSpan(span) {
+    const parent = span.parentNode;
+    while (span.firstChild) {
+        parent.insertBefore(span.firstChild, span);
+    }
+    parent.removeChild(span);
+}
 
         // Event delegation for buttons (works for multiple elements)
         document.addEventListener('click', function (event) {
