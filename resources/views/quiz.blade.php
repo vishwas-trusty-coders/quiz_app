@@ -65,12 +65,11 @@ $flagstatus = [];
                 <div class="question" id="question-{{ $question->id }}" style="display: {{ $index == 0 ? 'block' : 'none' }};">
                     <div class="edit_buttns">
                         <button onclick="applyHighlight()"><i class="fa-solid fa-highlighter"></i></button>
-                    </div>
-                    <div class="quest_desc editableText" contenteditable="true">{{ strip_tags($question->question) }}</span></div>
-                    <!-- Display options for the question -->
-                    <div class="strike_buttns">
+                   
                         <button onclick="applyStrikethrough()"><i class="fa-solid fa-strikethrough"></i></button>
                     </div>
+                    <div class="quest_desc editableText" contenteditable="true">{{ strip_tags($question->question) }}</span></div>
+                    
                     <ul class="question-list">
                         @php
                             $attemptedAnswer = $question->pivot->selected_answer ?? null;
